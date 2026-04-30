@@ -1,0 +1,122 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+interface StudentOperations {
+    void updateMark(double newMark);
+    boolean isPassed();
+}
+
+abstract class Student implements StudentOperations {
+    private String name;
+    private int id;
+    protected double mark;
+
+    public Student(String name, int id, double mark) {
+        this.name = name;
+        this.id = id;
+        this.mark = mark;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public double getMark() { return mark; }
+
+    @Override
+    public void updateMark(double newMark) {
+        if (newMark < 0 || newMark > 100) {
+            throw new IllegalArgumentException("Mark must be between 0 and 100");
+        }
+        this.mark = newMark;
+    }
+
+    public abstract String getStudentType();
+}
+
+class UndergradStudent extends Student {
+    public UndergradStudent(String name, int id, double mark) {
+        super(name, id, mark);
+    }
+
+    @Override
+    public boolean isPassed() {
+        return mark >= 60;
+    }
+
+    @Override
+    public String getStudentType() {
+        return "Undergraduate";
+    }
+}
+
+class GradStudent extends Student {
+    public GradStudent(String name, int id, double mark) {
+        super(name, id, mark);
+    }
+
+    @Override
+    public boolean isPassed() {
+        return mark >= 80;
+    }
+
+    @Override
+    public String getStudentType() {
+        return "Graduate";
+    }
+}
+
+class RegistrationSystem {
+    private ArrayList<Student> students = new ArrayList<>();
+
+    public void addStudent(Student s) {
+        students.add(s);
+    }
+
+    public void displayAll() {
+        for (Student s : students) {
+            System.out.println("ID: " + s.getId() + " | Name: " + s.getName() + 
+                               " | Mark: " + s.getMark() + " | Type: " + s.getStudentType() +
+                               " | Result: " + (s.isPassed() ? "Passed" : "Failed"));
+        }
+    }
+
+    public void modifyStudentMark(int id, double newMark) {
+        for (Student s : students) {
+            if (s.getId() == id) {
+                s.updateMark(newMark);
+                System.out.println("Mark updated for student: " + s.getName());
+                return;
+            }
+        }
+        System.out.println("Student not found!");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        RegistrationSystem system = new RegistrationSystem();
+        Scanner sc = new Scanner(System.in);
+
+        try {
+            system.addStudent(new UndergradStudent("Ahmed", 101, 65));
+            system.addStudent(new GradStudent("Sara", 201, 75));
+
+            System.out.println("--- Current Students List ---");
+            system.displayAll();
+
+            System.out.print("\nEnter Student ID to modify mark: ");
+            int id = sc.nextInt();
+            System.out.print("Enter New Mark: ");
+            double newMark = sc.nextDouble();
+
+            system.modifyStudentMark(id, newMark);
+            
+            System.out.println("\n--- Updated Students List ---");
+            system.displayAll();
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            sc.close();
+        }
+    }
+}
